@@ -1,6 +1,8 @@
 package fr.ups.sim.superpianotiles;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
@@ -16,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Calendar;
 import java.util.Timer;
@@ -70,6 +73,7 @@ public class Mode1Activity extends Activity {
 
                 for (Tiles tile : this.game.getTiles())
                 {
+                    System.err.println("balise");
                     tile.defile(this.game.getDifficulte());
                     //TODO
                     if (tile.getBottom() <= 0.0f)
@@ -78,6 +82,7 @@ public class Mode1Activity extends Activity {
                         this.game.perteVie();
                         this.game.removeNextTile();
                         this.game.setNextTile();
+
                         if (this.game.getVie() == 0)
                         {
                             runOnUiThread(new Runnable() {
@@ -306,7 +311,7 @@ public class Mode1Activity extends Activity {
                 this.timer2.cancel();
             //music.stop();
             setContentView(R.layout.settingbis);
-            RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+            final RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
             radioGroup.check(R.id.radioButton2);
 
             //Pré sélectionne le radioButton selon la difficulté courante
@@ -344,8 +349,19 @@ public class Mode1Activity extends Activity {
                             break;
                         case R.id.radioButton3:
                             //Difficile
-                            game.setDifficulte(Difficulte.DIFFICILE);
-                            break;
+                            if(game.getMode() == ModeDeJeu.DEFILEMENT){
+                                //si l'utilisateur veut jouer defilement en difficile
+                                AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(Mode1Activity.this);
+                                dlgAlert.setMessage("\"Difficile\" is way to harcore for you");
+                                dlgAlert.setTitle("App Title");
+                                dlgAlert.setPositiveButton("OK", null);
+                                dlgAlert.setCancelable(true);
+                                dlgAlert.create().show();
+                                radioGroup.check(R.id.radioButton2);
+                            }else {
+                                game.setDifficulte(Difficulte.DIFFICILE);
+                                break;
+                            }
                     }
 
                 }
