@@ -47,9 +47,13 @@ public class Tiles {
         return new float[]{this.left, this.top, this.right, this.bottom};
     }
 
-    public float getBottom()
+    public float getTop()
     {
-        return this.bottom ;
+        return this.top ;
+    }
+
+    public float getBottom() {
+        return this.bottom;
     }
 
 
