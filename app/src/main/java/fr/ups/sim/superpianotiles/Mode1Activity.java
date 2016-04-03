@@ -73,23 +73,30 @@ public class Mode1Activity extends Activity {
 
                 for (Tiles tile : this.game.getTiles())
                 {
-                    System.err.println("balise");
                     tile.defile(this.game.getDifficulte());
                     //TODO
                     if (tile.getTop() > 3.99f)
                     {
                         System.err.println("tuile sortie lololololol");
                         this.game.perteVie();
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                majVie();
+                            }
+                        });
+
                         this.game.removeNextTile();
                         this.game.setNextTile();
 
                         if (this.game.getVie() == 0)
                         {
                             runOnUiThread(new Runnable() {
-                                 @Override
-                                 public void run() {
-                                     gameOver();
-                                 }
+                                @Override
+                                public void run() {
+                                    gameOver();
+                                }
                             });
                         }
                     }
@@ -154,12 +161,14 @@ public class Mode1Activity extends Activity {
     }
 
 
-
+    public void majVie()
+    {
+        ((TextView)findViewById(R.id.vies)).setText("Vie(s) : " + this.game.getVie());
+    }
 
 
 
     public void createGame(Difficulte difficulte,int musique, ModeDeJeu m){
-
 
         setContentView(R.layout.activity_tiles_start);
         if(music != null){
@@ -175,6 +184,8 @@ public class Mode1Activity extends Activity {
         //On récupère la view (JFrame en SWING) du jeu
         this.tilesView = (TilesView) findViewById(R.id.view);
 
+        if(!m.equals(ModeDeJeu.DEFILEMENT))
+            ((TextView)findViewById(R.id.vies)).setText("");
 
         //On met en place un listener qui réagira lorsque l'on touchera l'écran tactile
         this.tilesView.setOnTouchListener(new View.OnTouchListener() {
@@ -476,7 +487,7 @@ public class Mode1Activity extends Activity {
             this.timer2.cancel();
 
         music.stop();
-        fail =  MediaPlayer.create(this,R.raw.crash);
+        fail =  MediaPlayer.create(this, R.raw.crash);
         fail.start();
 
 
