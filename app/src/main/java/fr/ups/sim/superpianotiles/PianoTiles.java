@@ -154,4 +154,36 @@ public class PianoTiles {
         this.vie-- ;
         System.err.println("Ma vie : " + vie) ;
     }
+
+    public void fullScreenTiles()
+    {
+        boolean ajoute ;
+        float top ;
+        float left ;
+        Integer num = this.lastAdded ;
+        System.err.println(num) ;
+        while (num != 20) {
+            ajoute = false ;
+
+            while (!ajoute) {
+                top = this.rand.nextInt(3 + 1);
+                left = this.rand.nextInt(4 + 1);
+
+                System.err.println(num.toString()) ;
+                Tiles a = new Tiles(num.toString(), top, left);
+                if (!this.tilesList.contains(a)) {
+                    System.err.println("dans id") ;
+                    ajoute = this.tilesList.add(a);
+                    System.err.println(this.tilesList);
+                }
+            }
+
+            System.err.println(this.tilesList) ;
+
+            this.nextTile = this.tilesList.iterator().next();
+            this.lastAdded++;
+            num++ ;
+            System.err.println(num) ;
+        }
+    }
 }

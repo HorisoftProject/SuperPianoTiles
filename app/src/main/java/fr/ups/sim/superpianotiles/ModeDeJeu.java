@@ -9,6 +9,7 @@ package fr.ups.sim.superpianotiles;
  */
 public enum ModeDeJeu {
     DEFILEMENT,
-    STATIQUE
+    STATIQUE,
+    CHRONO
 }
 

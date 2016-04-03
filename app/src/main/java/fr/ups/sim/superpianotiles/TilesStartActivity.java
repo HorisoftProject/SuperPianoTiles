@@ -71,6 +71,16 @@ public class TilesStartActivity extends Activity {
                 startActivity(intent);
             }
         });
+
+        findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(TilesStartActivity.this, Mode1Activity.class);
+                intent.putExtra(mode,"chrono");
+                startActivity(intent);
+            }
+        });
     }
 
 

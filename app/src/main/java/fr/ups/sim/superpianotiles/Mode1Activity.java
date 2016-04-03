@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -25,6 +26,7 @@ import fr.ups.sim.superpianotiles.events.TileCounter;
 import fr.ups.sim.superpianotiles.events.TileEvent;
 
 public class Mode1Activity extends Activity {
+
 
 
     class MonAction extends TimerTask {
@@ -107,6 +109,14 @@ public class Mode1Activity extends Activity {
     private MediaPlayer music = null;
     private MediaPlayer fail;
     private TileCounter senseur;
+    private int debutMilliSec;
+    private int debutSec;
+    private int debutMin;
+    private int finMilliSec;
+    private int finSec;
+    private int finMin;
+    private Calendar c;
+    private float meilleurTemps;
 
 
     @Override
@@ -127,8 +137,11 @@ public class Mode1Activity extends Activity {
             System.err.println("DEFILEMENT LOLOLOLOLOLOLOLOLOL");
             Log.d("STATE","DEFILEMENT");
         }
-        else
+        else if (intent.getStringExtra(mode).equals("stat"))
             createGame(Difficulte.MOYEN, R.raw.cloud_atlas, ModeDeJeu.STATIQUE);
+        else
+            createGame(Difficulte.MOYEN, R.raw.cloud_atlas, ModeDeJeu.CHRONO);
+
 
         game.setIdMusic(R.raw.cloud_atlas);
 
@@ -167,6 +180,13 @@ public class Mode1Activity extends Activity {
             }
         });
 
+
+        c = Calendar.getInstance();
+        System.err.println(this.c.toString()) ;
+        this.debutMilliSec = c.get(Calendar.MILLISECOND) ;
+        this.debutSec = c.get(Calendar.SECOND);
+        this.debutMin = c.get(Calendar.MINUTE) ;
+
         long period;
 
         switch (difficulte.ordinal()) {
@@ -202,7 +222,7 @@ public class Mode1Activity extends Activity {
                     delay,
                     period);
         }
-        else {
+        else if (this.game.getMode().equals(ModeDeJeu.DEFILEMENT)) {
             this.timer2 = new Timer();
 
 
@@ -213,6 +233,27 @@ public class Mode1Activity extends Activity {
                         1);
 
 
+        }
+        else {
+            this.game.fullScreenTiles();
+            this.tilesView.setGame(this.game);
+
+            this.senseur = new TileCounter();
+            senseur.addTemperatureListener(new TileAdapter() {
+                @Override
+                public void nbTileChanged(TileEvent event) {
+                    System.err.println("Le nombre de tuile a changé" + event.getNbTiles());
+
+                    if (event.getNbTiles() == 0) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                termine();
+                            }
+                        });
+                    }
+                }
+            });
         }
         //Compteur de tuile et son listener
         this.senseur = new TileCounter();
@@ -394,6 +435,12 @@ public class Mode1Activity extends Activity {
                     this.tilesView.setGame(this.game);
                     this.game.incrementeScore();
                     this.tilesView.invalidate();
+
+                    if (this.game.getMode() == ModeDeJeu.CHRONO)
+                    {
+                        senseur.fireNbTileChanged(this.game.getTiles().size());
+                    }
+
                 }
                 else {
                     gameOver();
@@ -429,5 +476,69 @@ public class Mode1Activity extends Activity {
                 startActivity(intent);            }
         });
     }
+
+
+    public void termine()
+    {
+        c = Calendar.getInstance();
+        Integer tempsSec ;
+        int tempsMilliSec ;
+        String temps ;
+        this.finMilliSec = c.get(Calendar.MILLISECOND) ;
+        this.finSec = c.get(Calendar.SECOND);
+        this.finMin = c.get(Calendar.MINUTE) ;
+
+        int diffMin = this.finMin - this.debutMin ;
+        int diffMilliSec = this.finMilliSec - this.debutMilliSec ;
+        if (diffMilliSec < 0)
+        {
+            tempsMilliSec = 1000 - this.debutMilliSec + this.finMilliSec ;
+            this.finSec-- ;
+        }
+        else
+        {
+            tempsMilliSec = this.finMilliSec - this.debutMilliSec ;
+        }
+        if (diffMin < 0)
+        {
+            tempsSec = 60 - this.debutSec + (diffMin-1)*60 + this.finSec ;
+        }
+        else
+        {
+            tempsSec = this.finSec - this.debutSec ;
+        }
+
+        temps = Integer.toString(tempsSec) + "." + Integer.toString(tempsMilliSec) ;
+
+        System.err.println(tempsSec + " et  " + tempsMilliSec) ;
+
+
+
+        music.stop();
+
+        setContentView(R.layout.termine);
+        ((TextView)findViewById(R.id.temps)).setText("Votre temps : " + temps + "sec");
+        if (Float.parseFloat(temps) < this.meilleurTemps || this.meilleurTemps == 0)
+            this.meilleurTemps = Float.parseFloat(temps) ;
+        ((TextView)findViewById(R.id.meilleurtemps)).setText("Meilleur temps : " + meilleurTemps + "sec");
+
+        findViewById(R.id.retry).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createGame(Difficulte.values()[game.getDifficulte()], game.getIdMusic(), game.getMode());
+            }
+        });
+        findViewById(R.id.menu).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Mode1Activity.this, TilesStartActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+
+    }
+
 
 }
