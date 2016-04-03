@@ -78,12 +78,12 @@ public class TilesView extends View {
 
         float left,top,right,bottom;
 
-        /*canvas.drawLine(0,0,1,getHeight(),pTile);
+        canvas.drawLine(0,0,1,getHeight(),pTile);
         canvas.drawLine(getWidth()/5,0,getWidth()/5+1,getHeight(),pTile);
         canvas.drawLine(2*getWidth()/5,0,2*getWidth()/5+1,getHeight(),pTile);
         canvas.drawLine(3*getWidth()/5,0,3*getWidth()/5+1,getHeight(),pTile);
         canvas.drawLine(4*getWidth()/5,0,4*getWidth()/5+1,getHeight(),pTile);
-        canvas.drawLine(getWidth()-1,0,getWidth(),getHeight(),pTile);*/
+        canvas.drawLine(getWidth()-1,0,getWidth(),getHeight(),pTile);
 
 
 

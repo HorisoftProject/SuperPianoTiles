@@ -51,7 +51,7 @@ public class PianoTiles {
             else //mode de jeu DEFILEMENT
             {
                 top = -1; // bottom commencera a 3-(-1) = 4 donc tout en haut
-                left = this.rand.nextInt(4) + this.rand.nextFloat();
+                left = this.rand.nextInt(4) ;//+ this.rand.nextFloat();
             }
 
             Tiles a = new Tiles(num.toString(), top, left);
