@@ -221,6 +221,8 @@ public class Mode1Activity extends Activity {
                     new MonAction(this.game, this.tilesView),
                     delay,
                     period);
+
+            creerSenseur(20,this.game.getMode());
         }
         else if (this.game.getMode().equals(ModeDeJeu.DEFILEMENT)) {
             this.timer2 = new Timer();
@@ -232,29 +234,23 @@ public class Mode1Activity extends Activity {
                         delay,
                         1);
 
+            creerSenseur(20,this.game.getMode());
 
         }
         else {
             this.game.fullScreenTiles();
             this.tilesView.setGame(this.game);
 
-            this.senseur = new TileCounter();
-            senseur.addTemperatureListener(new TileAdapter() {
-                @Override
-                public void nbTileChanged(TileEvent event) {
-                    System.err.println("Le nombre de tuile a changé" + event.getNbTiles());
-
-                    if (event.getNbTiles() == 0) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                termine();
-                            }
-                        });
-                    }
-                }
-            });
+            creerSenseur(0,this.game.getMode());
         }
+
+
+
+    }
+
+
+    //Creer un listener sur une variable
+    public void creerSenseur(final int nbTile, final ModeDeJeu mode) {
         //Compteur de tuile et son listener
         this.senseur = new TileCounter();
         senseur.addTemperatureListener(new TileAdapter() {
@@ -262,18 +258,25 @@ public class Mode1Activity extends Activity {
             public void nbTileChanged(TileEvent event) {
                 System.err.println("Le nombre de tuile a changé" + event.getNbTiles());
 
-                if (event.getNbTiles() == 20) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            gameOver();
-                        }
-                    });
+                if (event.getNbTiles() == nbTile) {
+                    if (!mode.equals(ModeDeJeu.CHRONO))
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                gameOver();
+                            }
+                        });
+                    else
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                termine();
+                            }
+                        });
                 }
+
             }
         });
-
-
     }
 
 
@@ -443,7 +446,10 @@ public class Mode1Activity extends Activity {
 
                 }
                 else {
-                    gameOver();
+                    if (!this.game.getMode().equals(ModeDeJeu.CHRONO))
+                        gameOver();
+                    else
+                        termine();
                 }
         }
 
