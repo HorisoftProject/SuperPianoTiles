@@ -9,19 +9,24 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
+import java.util.Random;
+
+
 
 /**
  * Custom view that displays tiles
  */
 public class TilesView extends View {
 
-    private int tileColor = Color.BLACK;
+    private Random rand = new Random() ;
+    private int tileColor = Color.argb(255, rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
     private int textColor = Color.WHITE;
     private Drawable mExampleDrawable;
     private float textSize = 40;
     Paint pText = new Paint();
     Paint pTile = new Paint();
-    private PianoTiles game = new PianoTiles();
+    private PianoTiles game = new PianoTiles(ModeDeJeu.DEFILEMENT);
+
 
 
     public TilesView(Context context) {
@@ -71,30 +76,30 @@ public class TilesView extends View {
         pText.setColor(textColor);
         pTile.setColor(tileColor);
 
-        int left,top,right,bottom;
+        float left,top,right,bottom;
 
-        canvas.drawLine(0,0,1,getHeight(),pTile);
+        /*canvas.drawLine(0,0,1,getHeight(),pTile);
         canvas.drawLine(getWidth()/5,0,getWidth()/5+1,getHeight(),pTile);
         canvas.drawLine(2*getWidth()/5,0,2*getWidth()/5+1,getHeight(),pTile);
         canvas.drawLine(3*getWidth()/5,0,3*getWidth()/5+1,getHeight(),pTile);
         canvas.drawLine(4*getWidth()/5,0,4*getWidth()/5+1,getHeight(),pTile);
-        canvas.drawLine(getWidth()-1,0,getWidth(),getHeight(),pTile);
+        canvas.drawLine(getWidth()-1,0,getWidth(),getHeight(),pTile);*/
 
 
 
-        System.err.println(this.game.getTiles().isEmpty());
+        //System.err.println(this.game.getTiles().isEmpty());
 
         if (!this.game.getTiles().isEmpty())
-        for (Tiles t : this.game.getTiles()) {
-            System.err.println("On dessine une tuile");
-            int[] tab = t.getPos();
-            left = getWidth()*tab[0]/5;
-            top = getBottom()* tab[1]/4;
-            right = getWidth()-getWidth() *tab[2]/5;
-            bottom = getBottom() - getBottom()*tab[3]/4;
-            addTile(t.toString(), new RectF(left, top, right, bottom), canvas);
+            for (Tiles t : this.game.getTiles()) {
+                //System.err.println("On dessine une tuile");
+                float[] tab = t.getPos();
+                left = getWidth()*tab[0]/5;
+                top = getBottom()* tab[1]/4;
+                right = getWidth()-getWidth() *tab[2]/5;
+                bottom = getBottom() - getBottom()*tab[3]/4;
+                addTile(t.toString(), new RectF(left, top, right, bottom), canvas);
 
-        }
+            }
 
         // Draw the example drawable on top of the text.
         if (mExampleDrawable != null) {
@@ -109,7 +114,7 @@ public class TilesView extends View {
         canvas.drawText(order, rect.centerX(), rect.centerY(),pText);
     }
 
-       /**
+    /**
      * Gets the example drawable attribute value.
      *
      * @return The example drawable attribute value.

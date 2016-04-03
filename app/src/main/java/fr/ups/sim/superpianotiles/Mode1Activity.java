@@ -23,9 +23,6 @@ import fr.ups.sim.superpianotiles.events.TileAdapter;
 import fr.ups.sim.superpianotiles.events.TileCounter;
 import fr.ups.sim.superpianotiles.events.TileEvent;
 
-/**
- * Created by mathieukostiuk on 03/04/2016.
- */
 public class Mode1Activity extends Activity {
 
 
@@ -45,31 +42,83 @@ public class Mode1Activity extends Activity {
             this.t.setGame(this.game);
             this.t.postInvalidate();
         }
+    }
 
+    class Defilement extends TimerTask
+    {
+        private PianoTiles game ;
+        private TilesView t ;
 
+        public Defilement(PianoTiles game, TilesView t)
+        {
+            this.game = game ;
+            this.t = t ;
+        }
+
+        public void run()
+        {
+            if (!this.game.getTiles().isEmpty())
+            {
+                for (Tiles tile : this.game.getTiles())
+                {
+                    tile.defile(this.game.getDifficulte());
+                    //TODO
+                    /*if (t.getBottom() == 0)
+                    {
+                        this.game.perteVie();
+                        if (this.game.getVie() == 0)
+                        {
+                            gameOver();
+                        }
+                    }*/
+                }
+                this.t.setGame(this.game);
+                this.t.postInvalidate();
+            }
+        }
     }
 
     private PianoTiles game;
     private TilesView tilesView;
-    private Timer t;
+    private Timer timer, timer2 ;
     private MediaPlayer music = null;
     private MediaPlayer fail;
     private TileCounter senseur;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        final String mode = "Mode";
+
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        game = new PianoTiles();
+        Intent intent = getIntent();
+        Log.d("STATE",intent.getStringExtra(mode));
+        System.err.println(intent.getStringExtra(mode));
+
+
+        if (intent.getStringExtra(mode).equals("def")) {
+            createGame(Difficulte.MOYEN, R.raw.cloud_atlas, ModeDeJeu.DEFILEMENT);
+            System.err.println("DEFILEMENT LOLOLOLOLOLOLOLOLOL");
+            Log.d("STATE","DEFILEMENT");
+        }
+        else
+            createGame(Difficulte.MOYEN, R.raw.cloud_atlas, ModeDeJeu.STATIQUE);
+
         game.setIdMusic(R.raw.cloud_atlas);
-        createGame(Difficulte.MOYEN,game.getIdMusic());
 
 
     }
 
 
-    public void createGame(Difficulte difficulte,int musique){
+
+
+
+
+    public void createGame(Difficulte difficulte,int musique, ModeDeJeu m){
+
 
         setContentView(R.layout.activity_tiles_start);
         if(music != null){
@@ -77,7 +126,7 @@ public class Mode1Activity extends Activity {
                 music.stop();}}
         music = MediaPlayer.create(this,musique);
         music.start();
-        this.game = new PianoTiles();
+        this.game = new PianoTiles(m);
         this.game.setDifficulte(difficulte);
         this.game.setIdMusic(musique);
 
@@ -97,13 +146,19 @@ public class Mode1Activity extends Activity {
 
 
 
-        this.t = new Timer() ;
+        this.timer = new Timer() ;
         int delay = 0 ;
         long period;
 
         switch (difficulte.ordinal()) {
             case 0:
-                period = 750;
+                if (this.game.getMode() == ModeDeJeu.STATIQUE) {
+                    period = 750;
+                }
+                else
+                {
+                    period = 1000 ;
+                }
                 break;
             case 1:
                 period = 500;
@@ -116,10 +171,20 @@ public class Mode1Activity extends Activity {
 
         }
 
-        t.schedule(
+        timer.schedule(
                 new MonAction(this.game, this.tilesView),
                 delay,
                 period) ;
+
+        this.timer2 = new Timer() ;
+
+        if (this.game.getMode() == ModeDeJeu.DEFILEMENT) {
+            System.err.println("Dans if") ;
+            timer2.schedule(
+                    new Defilement(this.game, this.tilesView),
+                    delay,
+                    1);
+        }
 
 
         //Compteur de tuile et son listener
@@ -145,6 +210,7 @@ public class Mode1Activity extends Activity {
 
 
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -163,7 +229,7 @@ public class Mode1Activity extends Activity {
         if (id == R.id.action_settings) {
             // ICI - A compléter pour déclencher l'ouverture de l'écran de paramétrage
 
-            t.cancel();
+            timer.cancel();
             //music.stop();
             setContentView(R.layout.settingbis);
             RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
@@ -208,7 +274,7 @@ public class Mode1Activity extends Activity {
                             break;
                     }
 
-                    createGame(Difficulte.values()[game.getDifficulte()], game.getIdMusic());
+                    createGame(Difficulte.values()[game.getDifficulte()], game.getIdMusic(), game.getMode());
                 }
             });
 
@@ -263,7 +329,7 @@ public class Mode1Activity extends Activity {
                         default : break;
 
                     }
-                    createGame(Difficulte.values()[game.getDifficulte()], musique);
+                    createGame(Difficulte.values()[game.getDifficulte()], musique, game.getMode());
                 }
             });
             return true;
@@ -299,7 +365,7 @@ public class Mode1Activity extends Activity {
     }
 
     public void gameOver() {
-        this.t.cancel();
+        this.timer.cancel();
 
         music.stop();
         fail =  MediaPlayer.create(this,R.raw.crash);
@@ -311,16 +377,15 @@ public class Mode1Activity extends Activity {
         findViewById(R.id.imageButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createGame(Difficulte.values()[game.getDifficulte()], game.getIdMusic());
+                createGame(Difficulte.values()[game.getDifficulte()], game.getIdMusic(), game.getMode());
             }
         });
         findViewById(R.id.button5).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Mode1Activity.this, TilesStartActivity.class);
-                startActivity(intent);
-                finish();
-            }
+                startActivity(intent);            }
         });
     }
+
 }

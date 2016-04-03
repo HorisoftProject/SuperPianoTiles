@@ -18,31 +18,46 @@ public class PianoTiles {
     private int lastAdded;
     protected Random rand;
     private Difficulte dif;
+    private ModeDeJeu mode ;
+    private int vie = 3 ;
     private int idMusic;
 
-    public PianoTiles() {
+    public PianoTiles(ModeDeJeu mode) {
         this.score = 0;
         this.rand = new Random();
         this.nextTile = null;
         this.lastAdded = 0;
         this.dif = Difficulte.MOYEN;
         //this.idMusic = R.raw.cloud_atlas;
+        this.mode = mode ;
     }
 
     public void newTile() {
 
         boolean ajoute = false;
+        float top ;
+        float left ;
 
         Integer num = this.lastAdded;
 
         while(!ajoute) {
 
+            if (this.mode == ModeDeJeu.STATIQUE)
+            {
+                top = this.rand.nextInt(3+1);
+                left = this.rand.nextInt(4+1);
 
-            int top = this.rand.nextInt(3+1);
-            int left = this.rand.nextInt(4+1);
+            }
+            else //mode de jeu DEFILEMENT
+            {
+                top = -1; // bottom commencera a 3-(-1) = 4 donc tout en haut
+                left = this.rand.nextInt(4) + this.rand.nextFloat();
+            }
+
             Tiles a = new Tiles(num.toString(), top, left);
             if (!this.tilesList.contains(a))
                 ajoute = this.tilesList.add(a);
+
 
         }
 
@@ -56,7 +71,7 @@ public class PianoTiles {
         if (this.nextTile == null)
             return true;
         else{
-            int[] tab = this.nextTile.getPos();
+            float[] tab = this.nextTile.getPos();
 
             float left = width*tab[0]/5;
             float top = bottom* tab[1]/4;
@@ -64,7 +79,7 @@ public class PianoTiles {
             float bot = bottom - bottom*tab[3]/4;
 
             System.err.println("x: "+x+" y: "+y+"left: "+left+" right: "+right+
-            " top : "+top+" bot: "+bot);
+                    " top : "+top+" bot: "+bot);
 
             this.removeNextTile();
             if (!this.tilesList.isEmpty())
@@ -73,13 +88,12 @@ public class PianoTiles {
                 this.nextTile = null;
 
 
-            //Coucou ma pute
             return (x >= (left) &&
                     x <= (right) &&
                     y >= (top) &&
                     y <= (bot));
 
-           // return true;
+            // return true;
         }
     }
 
@@ -117,4 +131,19 @@ public class PianoTiles {
         this.idMusic = musique;
     }
 
+    public ModeDeJeu getMode()
+    {
+        return this.mode ;
+    }
+
+    public int getVie()
+    {
+        return this.vie ;
+    }
+
+    public void perteVie()
+    {
+        this.vie-- ;
+        System.err.println("Ma vie : " + vie) ;
+    }
 }

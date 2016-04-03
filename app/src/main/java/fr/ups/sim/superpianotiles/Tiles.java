@@ -6,12 +6,12 @@ package fr.ups.sim.superpianotiles;
  */
 public class Tiles {
     private String order;
-    private int left;
-    private int top;
-    private int right;
-    private int bottom;
+    private float left;
+    private float top;
+    private float right;
+    private float bottom;
 
-    public Tiles(String order, int top, int left) {
+    public Tiles(String order, float top, float left) {
         this.order = order;
         this.left = left;
         this.top = top;
@@ -28,8 +28,8 @@ public class Tiles {
     public boolean equals(Object o) {
         if (o instanceof Tiles){
             Tiles compare = (Tiles) o;
-            int[] posThis = this.getPos();
-            int[] posComp = compare.getPos();
+            float[] posThis = this.getPos();
+            float[] posComp = compare.getPos();
             return ((posThis[1] == posComp[1]) && (posThis[2] == posComp[2]) &&
                     (posThis[0] == posComp[0]) && (posThis[3] == posComp[3]));
         }
@@ -43,7 +43,33 @@ public class Tiles {
 
 
 
-    public int[] getPos() {
-        return new int[]{this.left, this.top, this.right, this.bottom};
+    public float[] getPos() {
+        return new float[]{this.left, this.top, this.right, this.bottom};
+    }
+
+    public float getBottom()
+    {
+        return this.bottom ;
+    }
+
+
+
+    public void defile(int difficulte)
+    {
+        switch(difficulte) {
+            case 0 :
+                this.top = this.top +0.01f ;
+                break ;
+            case 1 :
+                this.top = this.top + 0.025f;
+                break ;
+            case 2 :
+                this.top = this.top + 0.05f;
+                break ;
+            default :
+                this.top = this.top + 0.025f ;
+                break ;
+        }
+        this.bottom = 3 - this.top ;
     }
 }

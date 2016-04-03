@@ -48,6 +48,7 @@ public class TilesStartActivity extends Activity {
     public void createMenu() {
 
         setContentView(R.layout.menu_start);
+         final String mode = "Mode";
 
 
         findViewById(R.id.button4).setOnClickListener(new View.OnClickListener() {
@@ -55,6 +56,18 @@ public class TilesStartActivity extends Activity {
             public void onClick(View v) {
 
                 Intent intent = new Intent(TilesStartActivity.this, Mode1Activity.class);
+                intent.putExtra(mode,"def");
+
+                startActivity(intent);
+            }
+        });
+
+        findViewById(R.id.button3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(TilesStartActivity.this, Mode1Activity.class);
+                intent.putExtra(mode,"stat");
                 startActivity(intent);
             }
         });
