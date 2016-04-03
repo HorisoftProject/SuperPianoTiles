@@ -137,4 +137,10 @@ public class TilesView extends View {
         this.game = game;
     }
 
+
+
+    public boolean isBottom(Tiles tile) {
+
+        return (getBottom() - getBottom()*tile.getPos()[3]/4 == 0);
+    }
 }

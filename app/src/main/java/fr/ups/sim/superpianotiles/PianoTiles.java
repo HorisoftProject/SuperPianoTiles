@@ -82,11 +82,8 @@ public class PianoTiles {
                     " top : "+top+" bot: "+bot);
 
             this.removeNextTile();
-            if (!this.tilesList.isEmpty())
-                this.nextTile = this.tilesList.iterator().next();
-            else
-                this.nextTile = null;
 
+            setNextTile();
 
             return (x >= (left) &&
                     x <= (right) &&
@@ -101,9 +98,20 @@ public class PianoTiles {
         return this.tilesList;
     }
 
-    private void removeNextTile() {
+    public void removeNextTile() {
         if (this.nextTile != null)
             this.tilesList.remove(this.nextTile);
+    }
+
+    public void setNextTile() {
+        if (!this.tilesList.isEmpty())
+            this.nextTile = this.tilesList.iterator().next();
+        else
+            this.nextTile = null;
+    }
+
+    public Tiles getNextTile() {
+        return this.nextTile;
     }
 
     public int getScore() {

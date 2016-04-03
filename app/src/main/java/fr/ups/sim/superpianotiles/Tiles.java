@@ -58,16 +58,16 @@ public class Tiles {
     {
         switch(difficulte) {
             case 0 :
-                this.top = this.top +0.01f ;
+                this.top = this.top +0.0075f ;
                 break ;
             case 1 :
-                this.top = this.top + 0.025f;
+                this.top = this.top + 0.01f;
                 break ;
             case 2 :
-                this.top = this.top + 0.05f;
+                this.top = this.top + 0.013f;
                 break ;
             default :
-                this.top = this.top + 0.025f ;
+                this.top = this.top + 0.0075f ;
                 break ;
         }
         this.bottom = 3 - this.top ;

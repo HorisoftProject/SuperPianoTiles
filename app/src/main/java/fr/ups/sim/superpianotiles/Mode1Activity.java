@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RadioGroup;
@@ -48,33 +49,55 @@ public class Mode1Activity extends Activity {
     {
         private PianoTiles game ;
         private TilesView t ;
+        private long cycles = 0;
+        private long period;
 
-        public Defilement(PianoTiles game, TilesView t)
+        public Defilement(PianoTiles game, TilesView t, long period)
         {
             this.game = game ;
             this.t = t ;
+            this.period = period;
         }
 
         public void run()
         {
+            this.cycles ++;
+
             if (!this.game.getTiles().isEmpty())
             {
+
                 for (Tiles tile : this.game.getTiles())
                 {
                     tile.defile(this.game.getDifficulte());
                     //TODO
-                    /*if (t.getBottom() == 0)
+                    if (tile.getBottom() <= 0.0f)
                     {
+                        System.err.println("tuile sortie lololololol");
                         this.game.perteVie();
+                        this.game.removeNextTile();
+                        this.game.setNextTile();
                         if (this.game.getVie() == 0)
                         {
-                            gameOver();
+                            runOnUiThread(new Runnable() {
+                                 @Override
+                                 public void run() {
+                                     gameOver();
+                                 }
+                            });
                         }
-                    }*/
+                    }
                 }
-                this.t.setGame(this.game);
-                this.t.postInvalidate();
+
+
             }
+            if (cycles == period){
+                System.err.println("Ajout Tuile dans la liste");
+                this.game.newTile();
+                senseur.fireNbTileChanged(this.game.getTiles().size());
+                this.cycles = 0;
+            }
+            this.t.setGame(this.game);
+            this.t.postInvalidate();
         }
     }
 
@@ -144,10 +167,6 @@ public class Mode1Activity extends Activity {
             }
         });
 
-
-
-        this.timer = new Timer() ;
-        int delay = 0 ;
         long period;
 
         switch (difficulte.ordinal()) {
@@ -171,22 +190,30 @@ public class Mode1Activity extends Activity {
 
         }
 
-        timer.schedule(
-                new MonAction(this.game, this.tilesView),
-                delay,
-                period) ;
 
-        this.timer2 = new Timer() ;
+        int delay = 0;
+        if (this.game.getMode().equals(ModeDeJeu.STATIQUE)) {
+            this.timer = new Timer();
 
-        if (this.game.getMode() == ModeDeJeu.DEFILEMENT) {
-            System.err.println("Dans if") ;
-            timer2.schedule(
-                    new Defilement(this.game, this.tilesView),
+
+
+            timer.schedule(
+                    new MonAction(this.game, this.tilesView),
                     delay,
-                    1);
+                    period);
         }
+        else {
+            this.timer2 = new Timer();
 
 
+                System.err.println("Dans if");
+                timer2.schedule(
+                        new Defilement(this.game, this.tilesView, period),
+                        delay,
+                        1);
+
+
+        }
         //Compteur de tuile et son listener
         this.senseur = new TileCounter();
         senseur.addTemperatureListener(new TileAdapter() {
@@ -229,7 +256,10 @@ public class Mode1Activity extends Activity {
         if (id == R.id.action_settings) {
             // ICI - A compléter pour déclencher l'ouverture de l'écran de paramétrage
 
-            timer.cancel();
+            if (this.game.getMode().equals(ModeDeJeu.STATIQUE))
+                this.timer.cancel();
+            else
+                this.timer2.cancel();
             //music.stop();
             setContentView(R.layout.settingbis);
             RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
@@ -274,7 +304,6 @@ public class Mode1Activity extends Activity {
                             break;
                     }
 
-                    createGame(Difficulte.values()[game.getDifficulte()], game.getIdMusic(), game.getMode());
                 }
             });
 
@@ -296,43 +325,53 @@ public class Mode1Activity extends Activity {
                 }
             });
 
-
+            final int[] musique = {R.raw.cloud_atlas};
             final ListView playlist = (ListView)findViewById(R.id.listView);
             playlist.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     //music.stop();
                     //MediaPlayer musique = null;
-                    int musique = 0;
+
                     switch (((TextView)view).getText().toString()){
                         case("Sextet - Cloud Atlas Soundtrack"):
                             //musique = MediaPlayer.create(TilesStartActivity.this,R.raw.cloud_atlas);
-                            musique = R.raw.cloud_atlas;
+                            musique[0] = R.raw.cloud_atlas;
                             break;
                         case("Let it Be - Beatles"):
                             //musique = MediaPlayer.create(TilesStartActivity.this,R.raw.beatles);
-                            musique = R.raw.beatles;
+                            musique[0] = R.raw.beatles;
 
                             break;
                         case("Obstacles - Syd Matters"):
                             //musique = MediaPlayer.create(TilesStartActivity.this,R.raw.obstacles);
-                            musique = R.raw.obstacles;
+                            musique[0] = R.raw.obstacles;
                             break;
                         case("Lean On - Major Lazer ft. DJ Snake"):
                             //musique = MediaPlayer.create(TilesStartActivity.this,R.raw.lean_on);
-                            musique = R.raw.lean_on;
+                            musique[0] = R.raw.lean_on;
                             break;
                         case("See You Again - Wiz Khalifa"):
                             //musique = MediaPlayer.create(TilesStartActivity.this,R.raw.see_you_again);
-                            musique = R.raw.see_you_again;
+                            musique[0] = R.raw.see_you_again;
                             break;
                         default : break;
 
                     }
-                    createGame(Difficulte.values()[game.getDifficulte()], musique, game.getMode());
+                }
+            });
+
+            final Button continuer = (Button)findViewById(R.id.button2);
+
+            continuer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    createGame(Difficulte.values()[game.getDifficulte()], musique[0], game.getMode());
+
                 }
             });
             return true;
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -365,7 +404,10 @@ public class Mode1Activity extends Activity {
     }
 
     public void gameOver() {
-        this.timer.cancel();
+        if (this.game.getMode().equals(ModeDeJeu.STATIQUE))
+            this.timer.cancel();
+        else
+            this.timer2.cancel();
 
         music.stop();
         fail =  MediaPlayer.create(this,R.raw.crash);
