@@ -76,7 +76,7 @@ public class Mode1Activity extends Activity {
                     System.err.println("balise");
                     tile.defile(this.game.getDifficulte());
                     //TODO
-                    if (tile.getBottom() <= 0.0f)
+                    if (tile.getTop() > 3.99f)
                     {
                         System.err.println("tuile sortie lololololol");
                         this.game.perteVie();
@@ -462,10 +462,10 @@ public class Mode1Activity extends Activity {
 
                 }
                 else {
-                    if (!this.game.getMode().equals(ModeDeJeu.CHRONO))
+                    //if (!this.game.getMode().equals(ModeDeJeu.CHRONO))
                         gameOver();
-                    else
-                        termine();
+                    //else
+                      //  termine();
                 }
         }
 
@@ -475,7 +475,7 @@ public class Mode1Activity extends Activity {
     public void gameOver() {
         if (this.game.getMode().equals(ModeDeJeu.STATIQUE))
             this.timer.cancel();
-        else
+        else if (this.game.getMode().equals(ModeDeJeu.DEFILEMENT))
             this.timer2.cancel();
 
         music.stop();
@@ -484,7 +484,9 @@ public class Mode1Activity extends Activity {
 
 
         setContentView(R.layout.game_over_bis);
-        ((TextView)findViewById(R.id.textView2)).setText("Your score is " + this.game.getScore());
+
+        if (!this.game.getMode().equals(ModeDeJeu.CHRONO) )
+            ((TextView)findViewById(R.id.textView2)).setText("Your score is " + this.game.getScore());
         findViewById(R.id.imageButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -504,14 +506,17 @@ public class Mode1Activity extends Activity {
     {
         c = Calendar.getInstance();
         Integer tempsSec ;
-        int tempsMilliSec ;
+        Integer tempsMilliSec ;
         String temps ;
         this.finMilliSec = c.get(Calendar.MILLISECOND) ;
         this.finSec = c.get(Calendar.SECOND);
         this.finMin = c.get(Calendar.MINUTE) ;
-
+        if (this.finMin < debutMin)
+            this.finMin += 60 ;
         int diffMin = this.finMin - this.debutMin ;
+        int diffSec = this.finSec - this.debutSec ;
         int diffMilliSec = this.finMilliSec - this.debutMilliSec ;
+        System.err.println(this.debutSec + " et " + this.finSec) ;
         if (diffMilliSec < 0)
         {
             tempsMilliSec = 1000 - this.debutMilliSec + this.finMilliSec ;
@@ -521,7 +526,7 @@ public class Mode1Activity extends Activity {
         {
             tempsMilliSec = this.finMilliSec - this.debutMilliSec ;
         }
-        if (diffMin < 0)
+        if (diffSec < 0)
         {
             tempsSec = 60 - this.debutSec + (diffMin-1)*60 + this.finSec ;
         }
