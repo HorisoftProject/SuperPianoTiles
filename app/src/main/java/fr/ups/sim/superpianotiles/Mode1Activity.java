@@ -462,10 +462,7 @@ public class Mode1Activity extends Activity {
 
                 }
                 else {
-                    //if (!this.game.getMode().equals(ModeDeJeu.CHRONO))
-                        gameOver();
-                    //else
-                      //  termine();
+                    gameOver();
                 }
         }
 
