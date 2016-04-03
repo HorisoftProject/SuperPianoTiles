@@ -318,7 +318,7 @@ public class Mode1Activity extends Activity {
 
             if (this.game.getMode().equals(ModeDeJeu.STATIQUE))
                 this.timer.cancel();
-            else
+            else if(this.game.getMode().equals(ModeDeJeu.DEFILEMENT))
                 this.timer2.cancel();
             //music.stop();
             setContentView(R.layout.settingbis);
